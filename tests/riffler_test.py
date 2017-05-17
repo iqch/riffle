@@ -14,7 +14,7 @@ class Filter :
 
 		print "CMNT : ",cmt," : ",fmt," :: ",buff
 
-		#ri.VArchiveRecord(cmt,comment)
+		#ri.VArchiveRecord(...)
 
 		return
 
@@ -26,14 +26,14 @@ class Filter :
 
 		return
 
-	def _AttributeBegin(self) :
+	def AttributeBegin(self) :
 
 		print "ATB"
 		ri.AttributeBegin()
 
 		return
 
-	def _AttributeEnd(self) :
+	def AttributeEnd(self) :
 
 		print "ATE"
 		ri.AttributeBegin()
@@ -41,18 +41,18 @@ class Filter :
 		return
 
 
-	def _FrameBegin(self,frame) :
+	def FrameBegin(self,frame) :
 
 		print "FBE : ",frame
 		ri.FrameBegin(frame)
 
 		return
 
-	def _Sides(self,sides) :
+	# def Sides(self,sides) :
 
-		print "Sides : ",sides
-		ri.Sides(sides)
+	# 	print "Sides : ",sides
+	# 	ri.Sides(sides)
 
-		return
+	# 	return
 
 def plugin(args) : return Filter(args)
