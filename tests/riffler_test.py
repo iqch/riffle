@@ -36,7 +36,7 @@ class Filter :
 	def AttributeEnd(self) :
 
 		print "ATE"
-		ri.AttributeBegin()
+		ri.AttributeEnd()
 
 		return
 
