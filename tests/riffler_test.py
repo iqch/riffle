@@ -14,13 +14,13 @@ class Filter :
 
 		print "CMNT : ",cmt," : ",fmt," :: ",buff
 
-		#ri.VArchiveRecord(...)
+		ri.VArchiveRecord(cmt,fmt,buff)
 
 		return
 
 	def Bxdf(self,name,shader,tk) :
 
-		print "BXDF ",name,shader,tk
+		print "BXDF ",name,shader
 
 		ri.Bxdf(name,shader,tk)
 

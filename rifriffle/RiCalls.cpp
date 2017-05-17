@@ -547,19 +547,35 @@ DEFINE_RICALL(Basis)
 	SUCCESS
 };
 
-DEFINE_RICALL(VArchiveRecord) // ...PASSES BACK NOTHING
+DEFINE_RICALL(VArchiveRecord)
 {
-	//if(PyTuple_Size(args) != 1) FAIL;
+	if(PyTuple_Size(args) != 3) FAIL;
 
-	//char* cmnt = PyString_AsString(PyTuple_GetItem(args,0));
+	string mark = PyString_AsString(PyTuple_GetItem(args, 0));
 
-	//va_list v;
+	char* fmt = PyString_AsString(PyTuple_GetItem(args, 1));
 
-	//RiVArchiveRecord(RI_COMMENT,cmnt,v);
+	char* buff = PyString_AsString(PyTuple_GetItem(args, 2));
 
-	//delete [] cmnt;
 
-	SUCCESS
+	if (mark == "comment")
+	{
+		RiArchiveRecord(RI_COMMENT, fmt, buff);
+		SUCCESS
+	};
+
+	if (mark == "structure")
+	{
+		RiArchiveRecord(RI_STRUCTURE, fmt, buff);
+		SUCCESS
+	};
+
+	cout << "CANNOT PARSE " << mark.c_str() << " ArchiveRecord mark" << endl;
+
+	delete[] fmt;
+	delete[] buff;
+
+	FAIL
 };
 
 // MAKERS
