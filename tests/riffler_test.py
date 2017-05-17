@@ -18,6 +18,14 @@ class Filter :
 
 		return
 
+	def Bxdf(self,name,shader,tk) :
+
+		print "BXDF ",name,shader,tk
+
+		ri.Bxdf(name,shader,tk)
+
+		return
+
 	def _AttributeBegin(self) :
 
 		print "ATB"

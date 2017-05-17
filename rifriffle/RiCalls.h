@@ -183,6 +183,32 @@ DEFINE_RICALL(PointsGeneralPolygonsV);
 DEFINE_RICALL(SubdivisionMeshV);
 DEFINE_RICALL(HierarchicalSubdivisionMeshV);
 
+// v 10
+DEFINE_RICALL(VolumeV);
+DEFINE_RICALL(VPSurfaceV);
+DEFINE_RICALL(VPInteriorV);
+DEFINE_RICALL(VPAtmosphereV);
+
+// v 11
+//DECLARE_CALLBACK(Procedural2V)
+
+// v 12
+DEFINE_RICALL(VolumePixelSamples);
+
+// v 13
+DEFINE_RICALL(BxdfV);
+DEFINE_RICALL(IntegratorV);
+DEFINE_RICALL(PatternV);
+
+// v 14
+DEFINE_RICALL(LightFilterV);
+
+// v 15
+DEFINE_RICALL(DisplaceV);
+DEFINE_RICALL(SampleFilterV);
+DEFINE_RICALL(DisplayFilterV);
+DEFINE_RICALL(LightV);
+
 // TABLE
 #define RI_METHOD(method) {#method, _Ri##method, METH_VARARGS,""}
 #define RI_METHODV(method) {#method, _Ri##method##V, METH_VARARGS,""}
@@ -356,6 +382,32 @@ static PyMethodDef MethodTable[] = {
 	RI_METHODV(PointsGeneralPolygons),
 	RI_METHODV(SubdivisionMesh),
 	RI_METHODV(HierarchicalSubdivisionMesh),
+
+	// v 10
+	RI_METHODV(Volume),
+	RI_METHODV(VPSurface),
+	RI_METHODV(VPInterior),
+	RI_METHODV(VPAtmosphere),
+
+	// v 11
+	//RI_METHODV(Procedural2)
+
+	// v 12
+	RI_METHOD(VolumePixelSamples),
+
+	// v 13
+	RI_METHODV(Bxdf),
+	RI_METHODV(Integrator),
+	RI_METHODV(Pattern),
+
+	// v 14
+	RI_METHODV(LightFilter),
+
+	// v 15
+	RI_METHODV(Displace),
+	RI_METHODV(SampleFilter),
+	RI_METHODV(DisplayFilter),
+	RI_METHODV(Light),
 
 	// END
 	{NULL, NULL, 0, NULL}
