@@ -167,12 +167,12 @@ private:
 	DECLARE_CALLBACK(ResourceV)(RtToken handle, RtToken type, RtInt, RtToken[], RtPointer[]);
 	DECLARE_CALLBACK(ShaderV)(RtToken name, RtToken handle, RtInt, RtToken[], RtPointer[]);
 
-	// TOKEN/DICT WITH HANDLES
-	PyObject* _ArchiveBeginVFunc;
-	static RtArchiveHandle _ArchiveBeginV(RtToken name, RtInt, RtToken[], RtPointer[]);
+	// TOKEN/DICT WITH HANDLES - NO MORE SUPPORT
+	//PyObject* _ArchiveBeginVFunc;
+	//static RtArchiveHandle _ArchiveBeginV(RtToken name, RtInt, RtToken[], RtPointer[]);
 
-	PyObject* _LightSourceVFunc;
-	static RtLightHandle	_LightSourceV(RtToken name, RtInt, RtToken[], RtPointer[]);
+	//PyObject* _LightSourceVFunc;
+	//static RtLightHandle	_LightSourceV(RtToken name, RtInt, RtToken[], RtPointer[]);
 
 	// MISC
 	DECLARE_CALLBACK(ReadArchiveV)(RtToken name, RtArchiveCallback callback, RtInt, RtToken[], RtPointer[]);
@@ -218,7 +218,7 @@ private:
 	
 	DECLARE_CALLBACK(BlobbyV)(RtInt nleaf, RtInt ninst, RtInt inst[], RtInt nflt, RtFloat flt[], RtInt nstr, RtToken str[], RtInt, RtToken[], RtPointer[]);
 
-	static RtVoid _Procedural(RtPointer data, RtBound bound, RtProcSubdivFunc sdfunc, RtProcFreeFunc freefunc);
+	DECLARE_CALLBACK(Procedural)(RtPointer data, RtBound bound, RtProcSubdivFunc sdfunc, RtProcFreeFunc freefunc);
 	PyObject* _DelayedReadArchiveFunc;
 	PyObject* _RunProgramFunc;
 	PyObject* _DynamicLoadFunc;
@@ -245,8 +245,10 @@ private:
 	/* Version 11 added:
 	*      ObjectBeginV - SKIP
 	*      ObjectInstanceV - SKIP
-	*      Procedural2V - COMPLICATED */
+	*      Procedural2V */
 	DECLARE_CALLBACK(Procedural2V)(RtProc2SubdivFunc sfunc,RtProc2BoundFunc bfunc,int,RtToken[],RtPointer[]);
+	PyObject* _DelayedReadArchive2Func;
+	PyObject* _DynamicLoad2Func;
 	
 	/* Version 12 added:
 	*      VolumePixelSamples*/
@@ -481,8 +483,8 @@ Riffler::Riffler(int argc, char **argv)
 	PARSE_CALLBACKV(Shader);
 
 	// DICT WITH HANDLES
-	PARSE_CALLBACKV(ArchiveBegin);
-	PARSE_CALLBACKV(LightSource);
+	//PARSE_CALLBACKV(ArchiveBegin);
+	//PARSE_CALLBACKV(LightSource);
 
 	// MISC
 	PARSE_CALLBACKV(ReadArchive);
@@ -496,10 +498,6 @@ Riffler::Riffler(int argc, char **argv)
 	PARSE_CALLBACK(Basis);
 
 	PARSE_CALLBACK(VArchiveRecord);
-	
-	//_ArchiveRecordFunc = PyObject_GetAttrString(m_filterobj, "ArchiveRecord");
-	//if(PyCallable_Check(_ArchiveRecordFunc)) this->ArchiveEnd ArchiveRecord = &Riffler::_ArchiveRecord;
-	//else Py_XDECREF(_ArchiveRecordFunc);
 
 	// MAKERS
 	PARSE_CALLBACKV(MakeTexture);
@@ -535,6 +533,7 @@ Riffler::Riffler(int argc, char **argv)
 	PARSE_CALLBACKV(Blobby);
 
 	// PROCEDURAL
+	//PARSE_CALLBACK(Procedural);
 	_DelayedReadArchiveFunc = PyObject_GetAttrString(m_filterobj, "DelayedReadArchive");
 	_RunProgramFunc = PyObject_GetAttrString(m_filterobj, "RunProgram");
 	_DynamicLoadFunc = PyObject_GetAttrString(m_filterobj, "DynamicLoad");
@@ -543,23 +542,26 @@ Riffler::Riffler(int argc, char **argv)
 		+PyCallable_Check(_RunProgramFunc)
 		+PyCallable_Check(_DynamicLoadFunc));
 	
-	if(check != 0) Procedural = &Riffler::_Procedural;
-
 	if(!PyCallable_Check(_DelayedReadArchiveFunc))
 	{
 		Py_XDECREF(_DelayedReadArchiveFunc);
 		_DelayedReadArchiveFunc = NULL;
+		check--;
 	};
 	if(!PyCallable_Check(_RunProgramFunc))
 	{
 		Py_XDECREF(_RunProgramFunc);
 		_RunProgramFunc = NULL;
+		check--;
 	};
 	if(!PyCallable_Check(_DynamicLoadFunc))
 	{
 		Py_XDECREF(_DynamicLoadFunc);
 		_DynamicLoadFunc = NULL;
+		check--;
 	};
+
+	if (check != 0) Procedural = &Riffler::_Procedural;
 
 	// v 10
 	PARSE_CALLBACKV(Volume);
@@ -568,7 +570,37 @@ Riffler::Riffler(int argc, char **argv)
 	PARSE_CALLBACKV(VPAtmosphere);
 
 	// v 11
-	PARSE_CALLBACKV(Procedural2);
+	//PARSE_CALLBACKV(Procedural2);
+
+	check = 0;
+
+	_DelayedReadArchive2Func = PyObject_GetAttrString(m_filterobj, "DelayedReadArchive2");
+
+	if (PyCallable_Check(_DelayedReadArchive2Func) != 0)
+	{
+		check++;
+		cout << "DRA2" << endl;
+	}
+	else
+	{
+		Py_XDECREF(_DelayedReadArchive2Func);
+		_DelayedReadArchive2Func = NULL;
+	}
+
+	_DynamicLoad2Func = PyObject_GetAttrString(m_filterobj, "DynamicLoad2");
+	if (PyCallable_Check(_DynamicLoad2Func) != 0)
+	{
+		check++;
+		cout << "DL2" << endl;
+	}
+	else
+	{
+		Py_XDECREF(_DynamicLoad2Func);
+		_DynamicLoad2Func = NULL;
+	};
+
+	if (check != 0) Procedural2V = &Riffler::_Procedural2V;
+
 
 	// v 12
 	PARSE_CALLBACK(VolumePixelSamples);
@@ -718,8 +750,8 @@ Riffler::~Riffler()
 		CLEAN_CALLBACK(ShaderV);
 
 		// DICT WITH HANDLES
-		CLEAN_CALLBACK(ArchiveBeginV);
-		CLEAN_CALLBACK(LightSourceV);
+		//CLEAN_CALLBACK(ArchiveBeginV);
+		//CLEAN_CALLBACK(LightSourceV);
 
 		// MISC
 		CLEAN_CALLBACK(ReadArchiveV);
@@ -767,9 +799,10 @@ Riffler::~Riffler()
 		CLEAN_CALLBACK(BlobbyV);
 
 		// PROCEDURAL
-		CLEAN_CALLBACK(DelayedReadArchive);
-		CLEAN_CALLBACK(RunProgram);
-		CLEAN_CALLBACK(DynamicLoad);
+		//CLEAN_CALLBACK(DelayedReadArchive);
+		//CLEAN_CALLBACK(RunProgram);
+		//CLEAN_CALLBACK(DynamicLoad);
+		CLEAN_CALLBACK(Procedural);
 
 		// v 10
 		CLEAN_CALLBACK(VolumeV);
@@ -1081,46 +1114,46 @@ DUO_TOKEN_DICTIONARY(SampleFilterV);
 DUO_TOKEN_DICTIONARY(DisplayFilterV);
 DUO_TOKEN_DICTIONARY(LightV);
 
-RtArchiveHandle Riffler::_ArchiveBeginV(RtToken name, DICT)
-{
-	PyObject* pArgs = PyTuple_New(2);
-	PyObject* pName = Py_BuildValue("s",name);
-	PyTuple_SetItem(pArgs, 0, pName);
-	CALLV(ArchiveBeginV,1)
+//RtArchiveHandle Riffler::_ArchiveBeginV(RtToken name, DICT)
+//{
+//	PyObject* pArgs = PyTuple_New(2);
+//	PyObject* pName = Py_BuildValue("s",name);
+//	PyTuple_SetItem(pArgs, 0, pName);
+//	CALLV(ArchiveBeginV,1)
+//
+//	// STUB
+//	for(int i=0;i<n;i++)
+//	{
+//		if(strcmp(tk[i],"__handleid") == 0)
+//		{
+//			RtArchiveHandle h = strdup((RtToken)vl[i]);
+//			return h;
+//		};
+//	};
+//	
+//	RtArchiveHandle h = strdup(name);
+//	return h;
+//};
 
-	// STUB
-	for(int i=0;i<n;i++)
-	{
-		if(strcmp(tk[i],"__handleid") == 0)
-		{
-			RtArchiveHandle h = strdup((RtToken)vl[i]);
-			return h;
-		};
-	};
-	
-	RtArchiveHandle h = strdup(name);
-	return h;
-};
-
-RtLightHandle Riffler::_LightSourceV(RtToken name, DICT)
-{
-	PyObject* pArgs = PyTuple_New(2);
-	PyObject* pName = Py_BuildValue("s",name);
-	PyTuple_SetItem(pArgs, 0, pName);
-	CALLV(LightSourceV,1)
-
-	// STUB
-	for(int i=0;i<n;i++)
-	{
-		if(strcmp(tk[i],"__handleid") == 0)
-		{
-			RtLightHandle h = strdup((RtToken)vl[i]);
-			return h;
-		};
-	};
-	RtLightHandle h = strdup(name);
-	return h;
-};
+//RtLightHandle Riffler::_LightSourceV(RtToken name, DICT)
+//{
+//	PyObject* pArgs = PyTuple_New(2);
+//	PyObject* pName = Py_BuildValue("s",name);
+//	PyTuple_SetItem(pArgs, 0, pName);
+//	CALLV(LightSourceV,1)
+//
+//	// STUB
+//	for(int i=0;i<n;i++)
+//	{
+//		if(strcmp(tk[i],"__handleid") == 0)
+//		{
+//			RtLightHandle h = strdup((RtToken)vl[i]);
+//			return h;
+//		};
+//	};
+//	RtLightHandle h = strdup(name);
+//	return h;
+//};
 
 // MISC FUNCTIONS
 RtVoid Riffler::_ReadArchiveV(RtToken name, RtArchiveCallback callback, DICT)
@@ -1424,6 +1457,8 @@ bool ParseDictionaryUVVF(PyObject* dict, DICT, int uniform, int varying, int ver
 	Py_XDECREF(pResult); \
 	}; \
 	Py_XDECREF(pArgs);
+	
+	//Py_XDECREF(pDict);
 
 RtVoid Riffler::_PointsV(RtInt nverts, DICT)
 {
@@ -1854,12 +1889,71 @@ RtVoid Riffler::_Procedural(RtPointer data, RtBound b, RtProcSubdivFunc sdfunc, 
 	};
 };
 
+RtVoid Riffler::_Procedural2V(RtProc2SubdivFunc sdfunc, RtProc2BoundFunc bfunc, DICT)
+{
+	cout << "PROC2" << endl;
+
+	// DRA
+	if (sdfunc == RiProc2DelayedReadArchive)
+	{
+		cout << "DRA2 CALL" << endl;
+
+		GETFILTER
+		if (filter->_DelayedReadArchive2Func == NULL) return;
+
+		PyObject* pArgs = PyTuple_New(1);
+
+		PyObject* pDict = PyDict_New();
+		if(ParseDictionary(pDict, n, tk, vl))
+		{
+			PyTuple_SetItem(pArgs, 0, pDict);
+			PyObject* pResult = PyObject_CallObject(filter->_DelayedReadArchive2Func, pArgs);
+			Py_XDECREF(pResult);
+		};
+
+		//Py_XDECREF(pDict);
+		Py_XDECREF(pArgs);
+
+		return;
+	};
+
+	// DYNAMIC LOAD
+	if (sdfunc == RiProc2DynamicLoad)
+	{
+		cout << "DL2 CALL" << endl;
+
+		GETFILTER
+		if (filter->_DynamicLoad2Func == NULL) return;
+
+		PyObject* pBounds = NULL;
+
+		if (bfunc == RiSimpleBound) pBounds = Py_BuildValue("s", "SimpleBound");
+		if (bfunc == RiDSOBound) pBounds = Py_BuildValue("s", "DSOBound");
+
+		if (pBounds == NULL) return;
+
+		PyObject* pArgs = PyTuple_New(2);
+
+		PyTuple_SetItem(pArgs, 0, pBounds);
+
+		PyObject* pDict = PyDict_New();
+		if (ParseDictionary(pDict, n, tk, vl))
+		{
+			PyTuple_SetItem(pArgs, 1, pDict);
+			PyObject* pResult = PyObject_CallObject(filter->_DynamicLoad2Func, pArgs);
+			Py_XDECREF(pResult);
+		};
+
+		//Py_XDECREF(pDict);
+		Py_XDECREF(pArgs);
+		Py_XDECREF(pBounds);
+
+		return;
+	};
+};
+
+
 RtVoid Riffler::_VolumeV(RtToken type, RtBound, int*, DICT)
 {
 	// ...TODO
-};
-
-RtVoid Riffler::_Procedural2V(RtProc2SubdivFunc sfunc, RtProc2BoundFunc bfunc, DICT)
-{
-	/// ...TODO
 };

@@ -152,6 +152,7 @@ DEFINE_RICALL(DisplayV);
 DEFINE_RICALL(PixelFilter);
 DEFINE_RICALL(Basis);
 DEFINE_RICALL(VArchiveRecord);
+DEFINE_RICALL(Procedural);
 
 // MAKERS
 DEFINE_RICALL(MakeTextureV);
@@ -190,7 +191,7 @@ DEFINE_RICALL(VPInteriorV);
 DEFINE_RICALL(VPAtmosphereV);
 
 // v 11
-//DECLARE_CALLBACK(Procedural2V)
+DEFINE_RICALL(Procedural2V);
 
 // v 12
 DEFINE_RICALL(VolumePixelSamples);
@@ -352,6 +353,7 @@ static PyMethodDef MethodTable[] = {
 	RI_METHOD(PixelFilter),
 	RI_METHOD(Basis),
 	RI_METHOD(VArchiveRecord),
+	RI_METHOD(Procedural),
 
 	// MAKERS
 	RI_METHODV(MakeTexture),
@@ -390,7 +392,7 @@ static PyMethodDef MethodTable[] = {
 	RI_METHODV(VPAtmosphere),
 
 	// v 11
-	//RI_METHODV(Procedural2)
+	RI_METHODV(Procedural2),
 
 	// v 12
 	RI_METHOD(VolumePixelSamples),

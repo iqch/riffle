@@ -1181,4 +1181,48 @@ DEFINE_RICALL(VolumeV) //(RtToken type, RtBound, int*, int, RtToken[], RtPointer
 	SUCCESS
 };
 
+DEFINE_RICALL(Procedural) 
+{
+	// ...TODO
+	SUCCESS
+};
+
+DEFINE_RICALL(Procedural2V) 
+{
+	if(PyTuple_Size(args) != 2) FAIL;
+
+	string type = PyString_AsString(PyTuple_GetItem(args, 0));
+	//string bounds = PyString_AsString(PyTuple_GetItem(args, 1));
+
+	PyObject* dict =  PyTuple_GetItem(args,1);
+	RtInt n = 0;
+	RtToken* tk;
+	RtPointer* vl;
+
+	if(!CollectDictionary(dict,&n, &tk,&vl)) FAIL;
+
+	if (type == "LoadArchive")
+	{
+		RiProcedural2V(RiProc2DelayedReadArchive, RiSimpleBound, DICT);
+		DisposeTKVL(DICT);
+		SUCCESS
+	};
+	
+	if (type == "BoundDSO")
+	{
+		RiProcedural2V(RiProc2DynamicLoad, RiSimpleBound, DICT);
+		DisposeTKVL(DICT);
+		SUCCESS
+	};
+	
+	if (type == "DSO")
+	{
+		RiProcedural2V(RiProc2DynamicLoad, RiDSOBound, DICT);
+		DisposeTKVL(DICT);
+		SUCCESS
+	};
+
+	FAIL
+};
+
 // END

@@ -10,7 +10,7 @@ class Filter :
 		
 		return
 
-	def VArchiveRecord(self,cmt,fmt,buff) :
+	def _VArchiveRecord(self,cmt,fmt,buff) :
 
 		print "CMNT : ",cmt," : ",fmt," :: ",buff
 
@@ -26,14 +26,22 @@ class Filter :
 
 		return
 
-	def AttributeBegin(self) :
+	def DynamicLoad2(self,bound,tk) :
+
+		print "DYNLD2 ",bound,tk
+
+		ri.Procedural2("DSO",tk)
+
+		return
+
+	def _AttributeBegin(self) :
 
 		print "ATB"
 		ri.AttributeBegin()
 
 		return
 
-	def AttributeEnd(self) :
+	def _AttributeEnd(self) :
 
 		print "ATE"
 		ri.AttributeEnd()
@@ -41,7 +49,7 @@ class Filter :
 		return
 
 
-	def FrameBegin(self,frame) :
+	def _FrameBegin(self,frame) :
 
 		print "FBE : ",frame
 		ri.FrameBegin(frame)
